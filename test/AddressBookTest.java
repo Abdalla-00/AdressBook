@@ -41,11 +41,37 @@ public class AddressBookTest {
             assertEquals(book.getElementAt(i).toString(), importedBook.getElementAt(i).toString());
         }
     }
+    @Test
+    public void testSerialization() throws IOException, ClassNotFoundException{
+
+        AddressBook originalAddressBook = new AddressBook();
+        BuddyInfo buddy1 = new BuddyInfo("Alice", "789 Elm Street", 111222333);
+        BuddyInfo buddy2 = new BuddyInfo("Bob", "101 Pine Road", 444555666);
+
+        // Add buddies to the address book
+        originalAddressBook.addBuddy(buddy1);
+        originalAddressBook.addBuddy(buddy2);
+
+        // Serialize
+        String filename = "serializedAddressBook.ser";
+        originalAddressBook.serialize(filename);
+
+        //Deserialize
+        AddressBook deserializedAddressBook = AddressBook.deserialize(filename);
+
+        // Assert that the original and deserialized address books contain the same data
+        assertEquals(originalAddressBook.size(), deserializedAddressBook.size());
+        for (int i = 0; i < originalAddressBook.size(); i++) {
+            assertEquals(originalAddressBook.getElementAt(i).toString(), deserializedAddressBook.getElementAt(i).toString());
+        }
+
+    }
 
     @After
     public void tearDown(){
         File file = new File("exportAddressBookFile.txt");
-        if (file.exists() && !file.delete()){
+        File file1 = new File("serializedAddressBook.ser");
+        if (file.exists() && !file.delete() && !file1.delete()){
             System.err.println("Error deleting test file");
         }
     }

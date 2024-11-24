@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class AddressBookView extends JFrame {
 
@@ -28,10 +28,14 @@ public class AddressBookView extends JFrame {
         JMenuItem printAddressBookItem = new JMenuItem("Print AddressBook");
         JMenuItem saveAdressBook = new JMenuItem("Save");
         JMenuItem importAddressBook = new JMenuItem("Import");
+        JMenuItem serialize = new JMenuItem("Serialize");
+        JMenuItem deserialize = new JMenuItem("De-serialize");
         addressBookMenu.add(newAdressBookItem);
         addressBookMenu.add(printAddressBookItem);
         addressBookMenu.add(saveAdressBook);
         addressBookMenu.add(importAddressBook);
+        addressBookMenu.add(serialize);
+        addressBookMenu.add(deserialize);
         menuBar.add(addressBookMenu);
 
         // BuddyInfo Menu
@@ -51,6 +55,8 @@ public class AddressBookView extends JFrame {
         removeBuddy.addActionListener(e -> removeBuddy());
         saveAdressBook.addActionListener(e -> export());
         importAddressBook.addActionListener(e -> importBook());
+        serialize.addActionListener(e -> serializeAdressBook());
+        deserialize.addActionListener(e -> deserializeAdressBook());
 
         // Frame
         this.setSize(300,300);
@@ -107,8 +113,41 @@ public class AddressBookView extends JFrame {
                 JOptionPane.showMessageDialog(this, "Error importing AddressBook " + e.getMessage());
             }
         }
-
     }
+
+    private void serializeAdressBook(){
+        String filename = JOptionPane.showInputDialog(this, "Enter file name to store serialized adressbook: ");
+        if (filename != null){
+            try {
+                addressBook.serialize(filename);
+                JOptionPane.showMessageDialog(this, "Successfully seriazlized addressBook to file: " + filename);
+            } catch (IOException e){
+                JOptionPane.showMessageDialog(this, "Error serializing object to file " + e.getMessage());
+            }
+        }
+    }
+
+    private void deserializeAdressBook() {
+        String filename = JOptionPane.showInputDialog(this, "Enter the filename to deserialize the AddressBook from: ");
+        if (filename != null) {
+            try {
+                AddressBook deserializedAddressBook = AddressBook.deserialize(filename);
+                addressBook.clear();
+                for (int i = 0; i < deserializedAddressBook.size(); i++) {
+                    addressBook.addBuddy(deserializedAddressBook.getElementAt(i));
+                }
+                File temp = new File(filename);
+                if (temp.delete()) {
+                    System.out.println("Successfully deleted serialized file: " + filename);
+                }
+                JOptionPane.showMessageDialog(this, "AddressBook deserialized from: " + filename);
+            } catch (IOException | ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "Error deserializing AddressBook: " + e.getMessage());
+            }
+        }
+    }
+
+
 
     public static void main(String[] args){
         new AddressBookView();

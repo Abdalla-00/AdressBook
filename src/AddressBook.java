@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class AddressBook extends DefaultListModel<BuddyInfo> {
+public class AddressBook extends DefaultListModel<BuddyInfo> implements Serializable{
 
     public void addBuddy(BuddyInfo buddy) {
         if (buddy != null) {
@@ -66,6 +64,27 @@ public class AddressBook extends DefaultListModel<BuddyInfo> {
             System.out.println("Successfully imported AdressBook from file: " + filename);
         } catch (IOException e){
             System.err.println("Error importing file: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public void serialize(String filename) throws IOException {
+        try (FileOutputStream ostream = new FileOutputStream(filename);
+            ObjectOutputStream oos = new ObjectOutputStream(ostream);){
+            oos.writeObject(this);
+            System.out.println("Serialized AddressBook to: " + filename);
+        }   catch (IOException e){
+            System.err.println("Error serializing object " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public static AddressBook deserialize(String filename) throws IOException, ClassNotFoundException{
+        try(FileInputStream istream = new FileInputStream(filename);
+            ObjectInputStream ois = new ObjectInputStream(istream);){
+            return (AddressBook) ois.readObject();
+        }  catch (IOException | ClassNotFoundException e){
+            System.err.println("Error deserializing addressBook: " + e.getMessage());
             throw e;
         }
     }
